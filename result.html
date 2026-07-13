@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result</title>
+    <style>
+        /* Global Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            animation: fadeInDown 1s ease;
+        }
+
+        /* Result Container */
+        .result-container {
+            background: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            animation: fadeInUp 1s ease;
+        }
+
+        .result {
+            font-size: 1.25rem;
+            color: #555;
+            margin: 15px 0;
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 15px;
+            width: auto;
+        }
+
+        .result strong {
+            color: #ff5722;
+            font-size: 1.5rem;
+        }
+
+        /* Progress Bar for Probability */
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 20px;
+            margin: 20px 0;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 20px;
+            background-color: #4CAF50;
+            text-align: center;
+            color: white;
+            line-height: 30px;
+            font-size: 1rem;
+            transition: width 5s ease; /* Smooth animation */
+            width: 0%; /* Initial state for animation */
+        }
+
+        /* Toggle Button */
+        .toggle-button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            margin: 20px 0;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .toggle-button:hover {
+            background-color: #45a049;
+            transform: translateY(-3px);
+        }
+
+        /* Recommended Colleges and Departments List */
+        .recommended-colleges,
+        .recommended-departments {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0;
+            display: none;
+        }
+
+        .recommended-colleges li,
+        .recommended-departments li {
+            background: #e8f5e9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 6px solid #4CAF50;
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .recommended-colleges li:hover,
+        .recommended-departments li:hover {
+            transform: translateY(-3px);
+            background: #c8e6c9;
+        }
+
+        /* Button Styling */
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 30px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .back-link:hover {
+            background-color: #45a049;
+            transform: translateY(-3px);
+        }
+
+        .logout-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #555;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border-radius: 50px;
+            padding: 12px 30px;
+            transition: color 0.3s ease;
+        }
+
+        .logout-link:hover {
+            background-color: aqua;
+            color: #ff5722;
+        }
+
+        /* Keyframe Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="result-container">
+        <h1>Prediction Result</h1>
+        <p class="result">Seat Allocation Probability: </p>
+
+        <!-- Progress bar for probability visualization -->
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                {{ probability }}%
+            </div>
+        </div>
+
+        <!-- Toggle Button for Recommended Departments -->
+        <button class="toggle-button" id="toggleDepartmentsBtn" onclick="toggleDepartments()">
+            Show Recommended Departments
+        </button>
+
+        <ul class="recommended-departments" id="departmentsList">
+            {% if recommended_departments %}
+                {% for department in recommended_departments %}
+                <li>{{ department['department_name'] | capitalize }} (Code: {{ department['department'] }})</li>
+                {% endfor %}
+            {% else %}
+                <li>No recommended departments found.</li>
+            {% endif %}
+        </ul>
+
+        <!-- Toggle Button for Recommended Colleges -->
+        <button class="toggle-button" id="toggleCollegesBtn" onclick="toggleColleges()">
+            Show Recommended Colleges
+        </button>
+
+        <ul class="recommended-colleges" id="collegesList">
+            {% if recommended_colleges %}
+                {% for college in recommended_colleges %}
+                <li>{{ college['college_name'] | capitalize }} (Code: {{ college['college'] }})</li>
+                {% endfor %}
+            {% else %}
+                <li>No recommended colleges found.</li>
+            {% endif %}
+        </ul>
+
+        <a class="back-link" href="/">Go back</a><br>
+        <a class="logout-link" href="{{ url_for('logout') }}">Logout</a>
+        <!-- Add this to any page to link to feedback page -->
+        <a href="{{ url_for('feedback') }}">Submit Feedback</a>
+
+    </div>
+
+    <!-- JavaScript to toggle the visibility of the recommended departments and colleges list -->
+    <script>
+        function toggleDepartments() {
+            var departmentsList = document.getElementById("departmentsList");
+            var button = document.getElementById("toggleDepartmentsBtn");
+            if (departmentsList.style.display === "none" || departmentsList.style.display === "") {
+                departmentsList.style.display = "block";
+                button.innerText = "Hide Recommended Departments"; 
+            } else {
+                departmentsList.style.display = "none";
+                button.innerText = "Show Recommended Departments"; 
+            }
+        }
+
+        function toggleColleges() {
+            var collegesList = document.getElementById("collegesList");
+            var button = document.getElementById("toggleCollegesBtn");
+            if (collegesList.style.display === "none" || collegesList.style.display === "") {
+                collegesList.style.display = "block";
+                button.innerText = "Hide Recommended Colleges"; 
+            } else {
+                collegesList.style.display = "none";
+                button.innerText = "Show Recommended Colleges"; 
+            }
+        }
+
+        function animateProgressBar() {
+            var progressBar = document.getElementById("progressBar");
+            var percentage = {{ probability }};
+            if (percentage < 0 || percentage > 100) {
+                percentage = 0; 
+            }
+
+            progressBar.style.width = '0%';
+            setTimeout(function () {
+                progressBar.style.width = percentage + '%';
+                progressBar.innerHTML = percentage + '%';
+            }, 100);
+        }
+
+        // Call the function to animate the progress bar when the page loads
+        window.onload = animateProgressBar;
+    </script>
+</body>
+
+</html>

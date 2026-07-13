@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College & Department List</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8; /* Lighter background for contrast */
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            border-left: 5px solid #667eea; /* Added border for emphasis */
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2em; /* Increased size for title */
+        }
+
+        .college {
+            margin-bottom: 30px;
+            border: 1px solid #ddd; /* Light border for each college */
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s; /* Smooth transition effect */
+        }
+
+        .college:hover {
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1); /* Shadow effect on hover */
+        }
+
+        .college h2 {
+            margin-bottom: 10px;
+            color: #667eea;
+            font-size: 1.2em; /* Increased size for college names */
+        }
+
+        .college h3 {
+            color: #666; /* Darker color for the department heading */
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+
+        button {
+            background-color: #667eea; /* Button color */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s; /* Smooth color transition */
+            font-size: 1em; /* Font size for button */
+            margin-bottom: 10px; /* Space below the button */
+        }
+
+        button:hover {
+            background-color: #5a67d8; /* Darker shade on hover */
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            display: none; /* Initially hide the department lists */
+            margin-top: 10px; /* Space above department list */
+        }
+
+        li {
+            background-color: #f5f5f5;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s; /* Smooth hover effect */
+        }
+
+        li:hover {
+            background-color: #e2e2e2; /* Darker shade on hover */
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #667eea;
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 1.2em; /* Slightly larger font for the back link */
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        function toggleDepartments(collegeId) {
+            const departmentList = document.getElementById(collegeId);
+            departmentList.style.display = departmentList.style.display === "block" ? "none" : "block";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>College and Department List</h1>
+
+        {% for college_code, college_info in college_departments.items() %}
+        <div class="college">
+            <h2>{{ college_code }} - {{ college_info.college_name |capitalize}}</h2>
+            <h3>Departments:</h3>
+            <button onclick="toggleDepartments('{{ college_code }}')">
+                View Departments
+            </button>
+            <ul id="{{ college_code }}">
+                {% for department in college_info.departments %}
+                <li>{{ department.department_name |capitalize}} ({{ department.department_code |upper }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+        
+        <a href="{{ url_for('dashboard') }}" class="back-link">Go Back</a>
+    </div>
+</body>
+</html>
